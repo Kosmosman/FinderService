@@ -2,21 +2,32 @@ package main
 
 import (
 	"fmt"
+	"github.com/Kosmosman/service/orderdb"
 	"github.com/Kosmosman/service/stan_subscriber"
+	"github.com/Kosmosman/service/types"
 	"sync"
 )
 
 func main() {
-	var cache stan_subscriber.Cache
+	var cache types.Cache
+	var db orderdb.OrderDB
+	db.Connect()
+	db.RestoreCache(&cache)
 	wg := sync.WaitGroup{}
 	wg.Add(1)
-	go func(cache *stan_subscriber.Cache, wg *sync.WaitGroup) {
-		stan_subscriber.ListenStream(cache, wg)
-	}(&cache, &wg)
+	go func(cache *types.Cache, db *orderdb.OrderDB, wg *sync.WaitGroup) {
+		stan_subscriber.ListenStream(cache, db, wg)
+	}(&cache, &db, &wg)
 	wg.Wait()
-	fmt.Printf("Was readed %d messages\n", len(cache.Data))
+	fmt.Printf("\nReaded %d messages\n", len(cache.Data))
 	for _, data := range cache.Data {
 		println(string(data))
 	}
 
 }
+
+//func main() {
+//	var db orderdb.OrderDB
+//	db.Connect()
+//	db.ClearDB()
+//}

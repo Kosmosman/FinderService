@@ -1,9 +1,10 @@
 package stan_subscriber
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
+	"github.com/Kosmosman/service/orderdb"
+	"github.com/Kosmosman/service/types"
+	"github.com/go-playground/validator/v10"
 	"github.com/nats-io/stan.go"
 	"log"
 	"os"
@@ -12,30 +13,30 @@ import (
 	"syscall"
 )
 
-type Cache struct {
-	Mutex sync.RWMutex
-	Data  map[string][]byte
-}
+func add(orderJson []byte, ch *types.Cache, db *orderdb.OrderDB) {
+	v := validator.New(validator.WithRequiredStructEnabled())
 
-func (ch *Cache) Add(orderJson []byte) {
-	orderData := json.NewDecoder(bytes.NewReader(orderJson))
-	type orderId struct {
-		Id string `json:"order_uid"`
-	}
-	var Id orderId
-	err := orderData.Decode(&Id)
-	if err != nil {
+	var order types.Order
+	if err := json.Unmarshal(orderJson, &order); err != nil {
 		log.Fatal(err)
 	}
-	ch.Mutex.Lock()
-	defer ch.Mutex.Unlock()
-	if ch.Data == nil {
-		ch.Data = make(map[string][]byte)
+	if err := v.Struct(order); err == nil {
+		ch.Mutex.Lock()
+		defer ch.Mutex.Unlock()
+		if ch.Data == nil {
+			ch.Data = make(map[string][]byte)
+		}
+		if _, ok := ch.Data[order.OrderUID]; !ok {
+			orderStringView := string(orderJson)
+			ch.Data[order.OrderUID] = orderJson
+			db.Add(&order.OrderUID, &orderStringView)
+		}
+	} else {
+		println(err.Error())
 	}
-	ch.Data[Id.Id] = orderJson
 }
 
-func ListenStream(cache *Cache, wg *sync.WaitGroup) {
+func ListenStream(cache *types.Cache, db *orderdb.OrderDB, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	sc, err := stan.Connect("test-cluster", "subscriber")
@@ -45,8 +46,7 @@ func ListenStream(cache *Cache, wg *sync.WaitGroup) {
 	defer sc.Close()
 
 	sub, err := sc.Subscribe("order", func(msg *stan.Msg) {
-		cache.Add(msg.Data)
-		fmt.Println("Add new message")
+		add(msg.Data, cache, db)
 	}, stan.StartWithLastReceived())
 	if err != nil {
 		log.Fatal(err)
@@ -56,9 +56,5 @@ func ListenStream(cache *Cache, wg *sync.WaitGroup) {
 
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
-
-	// Ожидаем сигнала прерывания
 	<-signalCh
-
-	//select {}
 }

@@ -7,16 +7,16 @@ import (
 )
 
 func main() {
-	var dirParh string = "./publisher/orders/"
+	var dirPath string = "./publisher/orders/"
 	connect, err := stan.Connect("test-cluster", "publisher")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer connect.Close()
 
-	orders, _ := os.ReadDir(dirParh)
+	orders, _ := os.ReadDir(dirPath)
 	for _, fp := range orders {
-		data, err := os.ReadFile(dirParh + fp.Name())
+		data, err := os.ReadFile(dirPath + fp.Name())
 		if err != nil {
 			log.Fatal(err)
 		}
