@@ -9,6 +9,8 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 )
 
 type OrderDB struct {
@@ -16,8 +18,9 @@ type OrderDB struct {
 }
 
 func (db *OrderDB) Connect() {
-	fp, _ := os.Getwd()
-	if err := godotenv.Load(fp + "/orderdb/.env"); err != nil {
+	_, filename, _, _ := runtime.Caller(0)
+	path := filepath.Dir(filename)
+	if err := godotenv.Load(path + "/.env"); err != nil {
 		log.Fatal(err)
 	}
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s", os.Getenv("DB_USER"), os.Getenv("DB_DATABASE"), os.Getenv("DB_PASSWORD"))
@@ -37,6 +40,23 @@ func (db *OrderDB) Add(uid *string, orderData *string) {
 		log.Fatal(err)
 	}
 	println("Add new order!")
+}
+
+func (db *OrderDB) Get(uid *string) string {
+	result, err := db.Database.Query(`SELECT "order" FROM orders WHERE $1 = order_id`, uid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer result.Close()
+
+	var data string
+	for result.Next() {
+		err = result.Scan(&data)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	return data
 }
 
 func (db *OrderDB) RestoreCache(cache *types.Cache) {
@@ -61,7 +81,7 @@ func (db *OrderDB) RestoreCache(cache *types.Cache) {
 }
 
 func (db *OrderDB) ClearDB() {
-	if err, _ := db.Database.Exec(`DELETE FROM orders`); err != nil {
+	if _, err := db.Database.Exec(`TRUNCATE TABLE orders`); err != nil {
 		log.Fatal(err)
 	}
 }
