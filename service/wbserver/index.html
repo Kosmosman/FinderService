@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Frontend</title>
+</head>
+<body>
+<label for="numberInput"></label><input type="text" id="numberInput" placeholder="Input uid">
+<button onclick="getData()">Get data</button>
+<div>
+    <p id="output"></p>
+</div>
+
+<script>
+    const getData =()=> {
+        // ju89ioklp09iu3htest
+        const uid = document.getElementById('numberInput').value;
+        fetch(`http://localhost:8080/orders?uid=${uid}`)
+            .then(res =>
+                res.json()
+            )
+            .then(orders => {
+                document.getElementById('output').innerText = orders;
+            });
+
+        // fetch('/orders?uid=' + uid)
+        //     .then(response => response.json())
+
+    }
+</script>
+</body>
+</html>

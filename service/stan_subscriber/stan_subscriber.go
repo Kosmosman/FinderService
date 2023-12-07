@@ -7,10 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/nats-io/stan.go"
 	"log"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 )
 
 func add(orderJson []byte, ch *types.Cache, db *orderdb.OrderDB) {
@@ -53,8 +50,5 @@ func ListenStream(cache *types.Cache, db *orderdb.OrderDB, wg *sync.WaitGroup) {
 	}
 	defer sub.Unsubscribe()
 	defer sub.Close()
-
-	signalCh := make(chan os.Signal, 1)
-	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
-	<-signalCh
+	select {}
 }
