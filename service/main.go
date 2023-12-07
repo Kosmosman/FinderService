@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/Kosmosman/service/orderdb"
 	"github.com/Kosmosman/service/stan_subscriber"
 	"github.com/Kosmosman/service/types"
@@ -19,15 +18,4 @@ func main() {
 		stan_subscriber.ListenStream(cache, db, wg)
 	}(&cache, &db, &wg)
 	wg.Wait()
-	fmt.Printf("\nReaded %d messages\n", len(cache.Data))
-	for _, data := range cache.Data {
-		println(string(data))
-	}
-
 }
-
-//func main() {
-//	var db orderdb.OrderDB
-//	db.Connect()
-//	db.ClearDB()
-//}

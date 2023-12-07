@@ -39,7 +39,6 @@ func (db *OrderDB) Add(uid *string, orderData *string) {
 	if _, err := db.Database.Exec(`INSERT INTO orders(order_id, "order") VALUES($1, $2)`, uid, orderData); err != nil {
 		log.Fatal(err)
 	}
-	println("Add new order!")
 }
 
 func (db *OrderDB) Get(uid *string) string {

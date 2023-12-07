@@ -1,28 +1,11 @@
 package main
 
 import (
-	"github.com/nats-io/stan.go"
-	"log"
-	"os"
+	"github.com/Kosmosman/publisher/stan_publisher"
 )
 
 func main() {
-	var dirPath string = "./publisher/orders/"
-	connect, err := stan.Connect("test-cluster", "publisher")
-	if err != nil {
-		log.Fatal(err)
-	}
+	connect := stan_publisher.GetStanConnection()
 	defer connect.Close()
-
-	orders, _ := os.ReadDir(dirPath)
-	for _, fp := range orders {
-		data, err := os.ReadFile(dirPath + fp.Name())
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err = connect.Publish("order", data); err != nil {
-			log.Fatal(err)
-		}
-	}
-	println("Messages delivered...")
+	stan_publisher.PublishMessanges(&connect)
 }
