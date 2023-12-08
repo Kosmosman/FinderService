@@ -15,7 +15,8 @@ func add(orderJson []byte, ch *types.Cache, db *orderdb.OrderDB) {
 
 	var order types.Order
 	if err := json.Unmarshal(orderJson, &order); err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 	if err := v.Struct(order); err == nil {
 		prettyJSON, err := json.MarshalIndent(order, "", "    ")
