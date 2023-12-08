@@ -26,24 +26,13 @@ func (s *ServerAPI) StartServer() {
 	}
 }
 
-func enableCORS(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
-}
-
 func (s *ServerAPI) homepageHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "OPTIONS" {
-		enableCORS(&w)
-		return
-	}
 
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	enableCORS(&w)
 	if _, err := w.Write([]byte("Hello Bro!\n")); err != nil {
 		log.Fatal(err)
 	}

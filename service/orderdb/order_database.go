@@ -23,7 +23,7 @@ func (db *OrderDB) Connect() {
 	if err := godotenv.Load(path + "/.env"); err != nil {
 		log.Fatal(err)
 	}
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s", os.Getenv("DB_USER"), os.Getenv("DB_DATABASE"), os.Getenv("DB_PASSWORD"))
+	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_DATABASE"), os.Getenv("DB_PASSWORD"))
 	var err error
 	db.Database, err = sql.Open(os.Getenv("DB_CONNECTION"), connStr)
 	if err != nil {
