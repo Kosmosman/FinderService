@@ -2,8 +2,11 @@ package wbserver
 
 import (
 	"github.com/Kosmosman/service/types"
+	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
+	"runtime"
 )
 
 type ServerAPI struct {
@@ -40,29 +43,30 @@ func (s *ServerAPI) homepageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	enableCORS(&w) // Set CORS headers for the actual request
+	enableCORS(&w)
 	if _, err := w.Write([]byte("Hello Bro!\n")); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func (s *ServerAPI) ordersHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "OPTIONS" {
-		enableCORS(&w)
-		return
-	}
-	if r.Method != "GET" {
-		http.Error(w, "Unfollowed method", http.StatusMethodNotAllowed)
-		return
-	}
-	uid := r.URL.Query().Get("uid")
-	w.Header().Set("Content-Type", "application/json")
-	enableCORS(&w)
-	if _, ok := s.Cache.Data[uid]; !ok {
-		http.Error(w, "Uid not found", http.StatusNotFound)
-		return
-	}
-	if _, err := w.Write(s.Cache.Data[uid]); err != nil {
+	_, filename, _, _ := runtime.Caller(0)
+	templatePath := filepath.Dir(filename) + "/templates/orders.html"
+	tmpl := template.Must(template.ParseFiles(templatePath))
+	if err := tmpl.Execute(w, nil); err != nil {
 		log.Fatal(err)
+	}
+
+	uid := r.URL.Query().Get("uid")
+	if uid == "" {
+	}
+	if _, ok := s.Cache.Data[uid]; !ok {
+		if _, err := w.Write([]byte("Order not found!\n")); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if _, err := w.Write(s.Cache.Data[uid]); err != nil {
+			log.Fatal(err)
+		}
 	}
 }

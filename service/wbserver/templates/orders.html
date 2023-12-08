@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запрос заказа</title>
+</head>
+<body>
+<h1>Запрос заказа</h1>
+<form id="orderForm">
+    <label for="uid">UID:</label>
+    <input type="text" id="uid" name="uid">
+    <button type="submit" class="btn btn-primary">Получить данные</button>
+</form>
+<pre id="orderData">{{ .JSONData }}</pre>
+</body>
+</html>

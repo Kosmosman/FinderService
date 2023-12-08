@@ -16,7 +16,7 @@ func GetStanConnection() stan.Conn {
 	return connect
 }
 
-func PublishMessanges(conn *stan.Conn) {
+func PublishMessages(conn *stan.Conn) {
 	_, filename, _, _ := runtime.Caller(0)
 	dirPath := filepath.Dir(filename) + "/../orders/"
 	orders, _ := os.ReadDir(dirPath)

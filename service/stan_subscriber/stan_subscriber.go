@@ -18,14 +18,18 @@ func add(orderJson []byte, ch *types.Cache, db *orderdb.OrderDB) {
 		log.Fatal(err)
 	}
 	if err := v.Struct(order); err == nil {
+		prettyJSON, err := json.MarshalIndent(order, "", "    ")
+		if err != nil {
+			log.Fatal(err)
+		}
 		ch.Mutex.Lock()
 		defer ch.Mutex.Unlock()
 		if ch.Data == nil {
 			ch.Data = make(map[string][]byte)
 		}
 		if _, ok := ch.Data[order.OrderUID]; !ok {
-			orderStringView := string(orderJson)
-			ch.Data[order.OrderUID] = orderJson
+			orderStringView := string(prettyJSON)
+			ch.Data[order.OrderUID] = prettyJSON
 			db.Add(&order.OrderUID, &orderStringView)
 		}
 	} else {

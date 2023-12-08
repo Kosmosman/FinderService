@@ -7,5 +7,5 @@ import (
 func main() {
 	connect := stan_publisher.GetStanConnection()
 	defer connect.Close()
-	stan_publisher.PublishMessanges(&connect)
+	stan_publisher.PublishMessages(&connect)
 }
