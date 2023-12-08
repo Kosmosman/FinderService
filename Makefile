@@ -11,3 +11,8 @@ test:
 
 script:
 	go run publisher/main.go
+
+interface:
+	firefox -new-tab http://localhost:8080/orders
+
+.PHONY: interface
