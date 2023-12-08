@@ -59,6 +59,7 @@ func (s *ServerAPI) ordersHandler(w http.ResponseWriter, r *http.Request) {
 
 	uid := r.URL.Query().Get("uid")
 	if uid == "" {
+		return
 	}
 	if _, ok := s.Cache.Data[uid]; !ok {
 		if _, err := w.Write([]byte("Order not found!\n")); err != nil {
