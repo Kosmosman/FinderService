@@ -1,4 +1,4 @@
-# WB-L0
+# Order finder service
 
 Simple service for finding orders by uid. All new orders put in service memory via Nats-streaming.
 
