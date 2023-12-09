@@ -1,6 +1,7 @@
-start:
+services:
 	docker-compose up &
-	sleep 5
+
+server:
 	go run service/main.go
 
 stop:
